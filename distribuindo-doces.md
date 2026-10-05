@@ -35,7 +35,7 @@ A estrutura é simples: três laços aninhados, cada um de $0$ a $L$, e uma veri
 **A Matemática.**
 
 $$
-\text{Total} = \sum_{x_1=0}^{L} \sum_{x_2=0}^{L} \sum_{x_3=0}^{L} \mathbb{1}[x_1 + x_2 + x_3 = N]
+\text{Total} = \sum_{x_1=0}^{L} \sum_{x_2=0}^{L} \sum_{x_3=0}^{L} \mathbf{1}[x_1 + x_2 + x_3 = N]
 $$
 
 Para $N = 5, L = 2$, o laço percorre $3^3 = 27$ triplas e conta 3 que satisfazem.
@@ -53,7 +53,7 @@ Reduzo o espaço de busca a dois laços sobre $a$ e $b$, e passo a verificar se 
 **A Matemática.**
 
 $$
-\text{Total} = \sum_{a=0}^{L} \sum_{b=0}^{L} \mathbb{1}\big[\,0 \le N - a - b \le L\,\big]
+\text{Total} = \sum_{a=0}^{L} \sum_{b=0}^{L} \mathbf{1}\big[\,0 \le N - a - b \le L\,\big]
 $$
 
 Para $N = 5, L = 2$, o laço percorre $3^2 = 9$ pares e conta 3 válidos.
@@ -75,7 +75,7 @@ Se o intervalo for vazio, contribui com $0$. Caso contrário, contribui com o **
 **A Matemática.**
 
 $$
-\text{Total} = \sum_{a=0}^{L} \text{tam}\Big([\max(0, N-a-L), \min(L, N-a)]\Big)
+\text{Total} = \sum_{a=0}^{L} \operatorname{tam}\Big([\max(0, N-a-L), \min(L, N-a)]\Big)
 $$
 
 Para $N = 5, L = 2$: o intervalo de $a$ válido é $[1, 2]$; para $a = 1$, $b$ está em $[2, 2]$ (1 valor); para $a = 2$, $b$ está em $[1, 2]$ (2 valores). Total: 3.
@@ -229,7 +229,7 @@ Para $N = 5, L = 2$: $21 - 3 \cdot 6 = 3$. **Nesse caso deu certo** — mas só 
 O princípio da Inclusão-Exclusão (PIE) é a Teoria dos Conjuntos aplicada à contagem. Alternamos sinais para compensar sobreposições:
 
 $$
-\text{Válidos} = \sum_{j=0}^{K} (-1)^j \binom{K}{j} \binom{N - j(L+1) + K - 1}{K - 1}
+\text{Válidos} = \sum_{j=0}^{K} (-1)^j \binom{K}{j} \binom{N - j \cdot (L+1) + K - 1}{K - 1}
 $$
 
 Cada pedaço:
@@ -237,12 +237,12 @@ Cada pedaço:
 - **$j$** = quantas crianças estouram o teto simultaneamente ($0$ a $K$).
 - **$(-1)^j$** = o pêndulo: positivo para pares, negativo para ímpares.
 - **$\binom{K}{j}$** = escolha de *quais* $j$ crianças são as infratoras.
-- **$\binom{N - j(L+1) + K - 1}{K - 1}$** = Estrelas e Barras na sobra, após entregar $L+1$ doces às $j$ infratoras.
+- **$\binom{N - j \cdot (L+1) + K - 1}{K - 1}$** = Estrelas e Barras na sobra, após entregar $L+1$ doces às $j$ infratoras.
 
 **A Matemática (a fórmula definitiva).**
 
 $$
-F(N, K, L) = \sum_{j=0}^{K} (-1)^j \binom{K}{j} \binom{N - j(L+1) + K - 1}{K - 1}
+F(N, K, L) = \sum_{j=0}^{K} (-1)^j \binom{K}{j} \binom{N - j \cdot (L+1) + K - 1}{K - 1}
 $$
 
 Para $N = 5, L = 2, K = 3$:
@@ -260,7 +260,7 @@ Soma: $21 - 18 + 0 + 0 = 3$. ✔
 
 *Figura 3 — Cada $j$ contribui com um termo (verde = soma, vermelho = subtrai) e a linha azul mostra o total acumulado estabilizando em 3. É o "pêndulo" do PIE em ação: o universo de 21 é corrigido por 18 estouros simples; termos com $j \ge 2$ são zero pela Regra de Ouro.*
 
-**A Regra de Ouro.** Se $N - j(L+1) < 0$, o binômio correspondente vale zero: não há doces suficientes para forçar mais estouros. O somatório poderia parar cedo.
+**A Regra de Ouro.** Se $N - j \cdot (L+1) < 0$, o binômio correspondente vale zero: não há doces suficientes para forçar mais estouros. O somatório poderia parar cedo.
 
 **O Padrão Escondido.** Os coeficientes $1, 3, 3, 1$ que se alternam são a linha 3 do **Triângulo de Pascal** — os números $\binom{3}{k}$. Isso não é coincidência: é a assinatura geométrica do PIE para 3 variáveis. Generalizar para $K$ crianças significa trocar 3 por $K$ e ajustar os coeficientes.
 
@@ -284,13 +284,13 @@ Quando $N$ e $K$ chegam a $10^6$, binômios como $\binom{10^6}{10^5}$ geram núm
 
 **A solução.** Dois passos de pré-computação linear:
 
-1. **Fatoriais módulo $M$**: um vetor $fat[i] = i! \bmod M$, de $0$ até o maior argumento.
-2. **Inversos multiplicativos**: pelo *Pequeno Teorema de Fermat*, se $M$ é primo, então $x^{-1} \equiv x^{M-2} \pmod M$. Pré-computamos $\text{invFat}[i] = (fat[i])^{-1} \bmod M$.
+1. **Fatoriais módulo $M$**: um vetor $\text{fat}[i] = i! \bmod M$, de $0$ até o maior argumento.
+2. **Inversos multiplicativos**: pelo *Pequeno Teorema de Fermat*, se $M$ é primo, então $x^{-1} \equiv x^{M-2} \pmod M$. Pré-computamos $\text{invFat}[i] = (\text{fat}[i])^{-1} \bmod M$.
 
 A partir daí, cada binômio é avaliado em $\mathcal{O}(1)$:
 
 $$
-\binom{A}{B} \equiv fat[A] \cdot \text{invFat}[B] \cdot \text{invFat}[A - B] \pmod M
+\binom{A}{B} \equiv \text{fat}[A] \cdot \text{invFat}[B] \cdot \text{invFat}[A - B] \pmod M
 $$
 
 Com essa pré-computação em mãos, a fórmula da 10ª evolução roda em $\mathcal{O}(K)$ e resolve bilhões de casos por segundo.
