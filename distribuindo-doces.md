@@ -122,6 +122,10 @@ Criamos um "caderno de anotações": uma tabela que mapeia cada par $(i, j)$ par
 
 O número total de estados é $K \cdot N$, e cada estado gasta até $L + 1$ operações para ser computado. Complexidade: $\mathcal{O}(K \cdot N \cdot L)$.
 
+![Fig. 6 — Recursão pura × memoização](imagens/fig6_memoizacao.png)
+
+*Figura 6 — A Fig. 6 mostra o problema e a solução lado a lado para $F(3, 4)$ com $L = 2$. Sem memo (Evolução 4), 13 chamadas com 5 nós recalculados em vermelho; com memo (Evolução 5), 9 nós únicos e 4 cache hits em tracejado azul.*
+
 > **Onde dói.** Memória de execução. A recursão desce $K \cdot N$ níveis antes de retornar. Para $N = 10^6$ e $K = 10^6$, a pilha estoura — *stack overflow*. O processador simplesmente não tem espaço físico para tanta chamada aninhada.
 >
 > *A pergunta que fica: se a recursão (top-down) quebra a pilha, posso calcular na direção inversa — do menor problema para o maior — sem recursão?*
@@ -166,6 +170,10 @@ $$
 
 onde $S(i, j) = F(i, j)$ é a soma da janela atual. O loop interno de $0$ a $L$ desaparece. Complexidade: $\mathcal{O}(K \cdot N)$.
 
+![Fig. 7 — Janela deslizante](imagens/fig7_janela.png)
+
+*Figura 7 — A janela de tamanho $L+1 = 3$ anda uma casa sobre a linha $F(2, \cdot)$: $7 \to 6 \to 3$ apenas subtraindo a cauda que sai (vermelho) e somando a cabeça que entra (verde). É a recorrência da Evolução 7 em ação, produzindo $F(3,3)$, $F(3,4)$ e $F(3,5)$.*
+
 > **Onde dói.** A matemática está quase no limite da Ciência da Computação. Mas para $K = 10^6$ e $N = 10^6$, a matriz precisaria de $10^{12}$ células. Seriam **terabytes de memória RAM** só para armazenar estados intermediários.
 >
 > *A pergunta que fica: a Programação Dinâmica exige que percorramos $N$ doces, um por um, materializando estados. Para nos libertar da dependência física de $N$, precisamos mudar de dimensão. Sair do processamento e ir para a geometria pura.*
@@ -187,6 +195,10 @@ $$
 $$
 
 Para $N = 5, K = 3$: $\binom{7}{2} = 21$.
+
+![Fig. 5 — Estrelas e Barras](imagens/fig5_estrelas_barras.png)
+
+*Figura 5 — A bijeção em 5 exemplos: cada arranjo de 5 estrelas e 2 barras é uma tripla, e vice-versa. Escolher onde ficam as 2 barras em 7 posições dá $\binom{7}{2} = 21$ — o universo da Evolução 8.*
 
 > **Onde dói.** Uma única equação de tempo constante! Mas ela ignora o teto $L$. Está contabilizando cenários absurdos como $(5, 0, 0)$, onde uma criança recebe tudo.
 >
@@ -251,6 +263,10 @@ Soma: $21 - 18 + 0 + 0 = 3$. ✔
 **A Regra de Ouro.** Se $N - j(L+1) < 0$, o binômio correspondente vale zero: não há doces suficientes para forçar mais estouros. O somatório poderia parar cedo.
 
 **O Padrão Escondido.** Os coeficientes $1, 3, 3, 1$ que se alternam são a linha 3 do **Triângulo de Pascal** — os números $\binom{3}{k}$. Isso não é coincidência: é a assinatura geométrica do PIE para 3 variáveis. Generalizar para $K$ crianças significa trocar 3 por $K$ e ajustar os coeficientes.
+
+![Fig. 8 — Pascal dita os coeficientes](imagens/fig8_pascal.png)
+
+*Figura 8 — A Fig. 8 mostra a aplicação e a generalização: a linha 3 do Pascal ($1, 3, 3, 1$) determina cada termo do PIE para $K = 3$, e trocar 3 por $K$ generaliza a fórmula.*
 
 > **O Clímax.** Complexidade $\mathcal{O}(K)$. Sem memória auxiliar significativa. A fórmula de 3 variáveis era apenas a instância $K=3$ de uma estrutura geral. O algoritmo de 10 passos processa montanhas de dados bilhões de vezes mais rápido que o Passo 1.
 
