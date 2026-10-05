@@ -269,15 +269,85 @@ Quando $N$ e $K$ chegam a $10^6$, binômios como $\binom{10^6}{10^5}$ geram núm
 **A solução.** Dois passos de pré-computação linear:
 
 1. **Fatoriais módulo $M$**: um vetor $fat[i] = i! \bmod M$, de $0$ até o maior argumento.
-2. **Inversos multiplicativos**: pelo *Pequeno Teorema de Fermat*, se $M$ é primo, então $x^{-1} \equiv x^{M-2} \pmod M$. Pré-computamos $\text{inv\_fat}[i] = (fat[i])^{-1} \bmod M$.
+2. **Inversos multiplicativos**: pelo *Pequeno Teorema de Fermat*, se $M$ é primo, então $x^{-1} \equiv x^{M-2} \pmod M$. Pré-computamos $\text{invFat}[i] = (fat[i])^{-1} \bmod M$.
 
 A partir daí, cada binômio é avaliado em $\mathcal{O}(1)$:
 
 $$
-\binom{A}{B} \equiv fat[A] \cdot \text{inv\_fat}[B] \cdot \text{inv\_fat}[A - B] \pmod M
+\binom{A}{B} \equiv fat[A] \cdot \text{invFat}[B] \cdot \text{invFat}[A - B] \pmod M
 $$
 
 Com essa pré-computação em mãos, a fórmula da 10ª evolução roda em $\mathcal{O}(K)$ e resolve bilhões de casos por segundo.
+
+### Do quadro para o código
+
+A tradução direta da Evolução 10 para Elixir (testada: `count_ways(5, 3, 2)` devolve `3`):
+
+```elixir
+defmodule CandyDistribution do
+  @mod 1_000_000_007
+
+  # F(N, K, L): nº de soluções de x_1 + ... + x_K = N com 0 <= x_i <= L.
+  def count_ways(n, k, l) when k >= 1 do
+    max_arg = n + k
+    fact = factorials(max_arg)
+    inv_fact = inv_factorials(fact, max_arg)
+
+    binom = fn a, b ->
+      if a < 0 or b < 0 or b > a do
+        0
+      else
+        fact
+        |> elem(a)
+        |> Kernel.*(elem(inv_fact, b))
+        |> rem(@mod)
+        |> Kernel.*(elem(inv_fact, a - b))
+        |> rem(@mod)
+      end
+    end
+
+    0..k
+    |> Enum.map(fn j ->
+      resto = n - j * (l + 1)
+
+      if resto < 0 do
+        0
+      else
+        termo = rem(binom.(k, j) * binom.(resto + k - 1, k - 1), @mod)
+        if rem(j, 2) == 1, do: @mod - termo, else: termo
+      end
+    end)
+    |> Enum.sum()
+    |> rem(@mod)
+  end
+
+  defp factorials(0), do: {1}
+
+  defp factorials(max) do
+    1..max//1
+    |> Enum.reduce([1], fn i, [prev | _] = acc -> [rem(prev * i, @mod) | acc] end)
+    |> Enum.reverse()
+    |> List.to_tuple()
+  end
+
+  defp inv_factorials(fact, max) do
+    top = modpow(elem(fact, max), @mod - 2)
+
+    max..1//-1
+    |> Enum.reduce([top], fn i, [prev | _] = acc -> [rem(prev * i, @mod) | acc] end)
+    |> List.to_tuple()
+  end
+
+  defp modpow(_, 0), do: 1
+  defp modpow(x, e) when rem(e, 2) == 0 do
+    half = modpow(x, div(e, 2))
+    rem(half * half, @mod)
+  end
+  defp modpow(x, e), do: rem(x * modpow(x, e - 1), @mod)
+end
+```
+
+Repare como cada peça do código espelha a fórmula: `resto < 0` é a Regra de Ouro, `rem(j, 2)` é o pêndulo $(-1)^j$, e `binom.(k, j)` escolhe as infratoras.
 
 ---
 
